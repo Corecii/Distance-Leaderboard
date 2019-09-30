@@ -1,0 +1,24 @@
+extends default
+
+block content
+  div.container
+    table.db-content
+      thead
+        tr
+          th.db-content-level-index Index
+          th.db-content-level-name Name
+          th.db-content-entry-placement Placement
+          th.db-content-entry-time Time
+          th.db-content-entry-score Score
+      tbody
+        each entry in entries
+          tr
+            th.db-content-level-index #{entry.row_num}
+            th.db-content-level-name
+              a(href=`/level/${entry.level_id}/${Math.max(1, entry.placement - 15)}`) #{entry.cached_display_name}
+            th.db-content-level-placement #{entry.placement}
+            th.db-content-level-time #{entry.time}
+            th.db-content-level-score #{entry.score}
+        else
+          p No levels to display
+  include paginator

@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    title #{browserTitle}
+    link(rel='stylesheet', href='/css/style.css')
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+  body
+    main
+      block header
+        header.header
+          h1 #{title}
+          a(href='/players') Players
+          br
+          a(href='/levels') Levels
+      block content
+        

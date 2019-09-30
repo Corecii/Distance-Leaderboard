@@ -1,0 +1,7 @@
+div.paginator
+  if prevPage
+    a(href=`${prevPage}`) Back
+  if prevPage && nextPage
+    br
+  if nextPage
+    a(href=`${nextPage}`) Next

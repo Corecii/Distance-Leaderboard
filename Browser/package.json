@@ -1,0 +1,20 @@
+{
+  "name": "distance-leaderboard-browser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "npx nodemon server.js"
+  },
+  "author": "Corecii@corecii.com",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^1.19.3"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "pug": "^2.0.4",
+    "sql-template-strings": "^2.2.2",
+    "sqlite": "^3.0.3"
+  }
+}

@@ -1,0 +1,22 @@
+extends default
+
+block content
+  div.container
+    table.db-content
+      thead
+        tr
+          th.db-content-player-placement Placement
+          th.db-content-player-name Name
+          th.db-content-player-score Score
+          th.db-content-player-scores Levels
+      tbody
+        each entry in entries
+          tr
+            th.db-content-player-placementt #{entry.placement}
+            th.db-content-player-name
+              a(href=`/player/${entry.steam_id}`) #{entry.cached_display_name}
+            th.db-content-player-score #{entry.score_sum}
+            th.db-content-player-scores #{entry.score_count}
+        else
+          p No players to display
+  include paginator
