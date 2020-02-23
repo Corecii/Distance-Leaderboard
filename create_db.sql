@@ -1,13 +1,11 @@
 CREATE TABLE IF NOT EXISTS players (
 	steam_id TEXT NOT NULL PRIMARY KEY,
-	score_sum INTEGER NOT NULL DEFAULT 0,
 	score_count INTEGER NOT NULL DEFAULT 0,
 	cached_display_name TEXT
 ) WITHOUT ROWID;
 
 CREATE TABLE IF NOT EXISTS levels (
 	level_id TEXT NOT NULL PRIMARY KEY,
-	score_sum INTEGER NOT NULL DEFAULT 0,
 	score_count INTEGER NOT NULL DEFAULT 0,
 	file_id TEXT,
 	cached_display_name TEXT
@@ -16,12 +14,20 @@ CREATE TABLE IF NOT EXISTS levels (
 CREATE TABLE IF NOT EXISTS steam_leaderboard (
 	level_id TEXT NOT NULL,
 	steam_id TEXT NOT NULL,
-	time INTEGER NOT NULL,
+	score INTEGER NOT NULL,
 	placement INTEGER NOT NULL DEFAULT 0,
-	score INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY(level_id, steam_id),
 	FOREIGN KEY(level_id) REFERENCES levels(level_id),
 	FOREIGN KEY(steam_id) REFERENCES players(steam_id)
+) WITHOUT ROWID;
+
+CREATE TABLE IF NOT EXISTS player_vs_player (
+	winner_id TEXT NOT NULL,
+	loser_id TEXT NOT NULL,
+	level_id TEXT NOT NULL,
+	PRIMARY KEY(winner_id, loser_id, level_id),
+	FOREIGN KEY(winner_id) REFERENCES players(steam_id),
+	FOREIGN KEY(loser_id) REFERENCES players(steam_id)
 ) WITHOUT ROWID;
 
 
@@ -72,7 +78,7 @@ END;
 
 CREATE INDEX IF NOT EXISTS index_steam_leaderboard_placement ON steam_leaderboard(level_id, placement);
 
-CREATE INDEX IF NOT EXISTS index_players_score_sum ON players(score_sum);
+CREATE INDEX IF NOT EXISTS index_player_vs_player_winner ON player_vs_player(winner_id, loser_id);
 
 CREATE INDEX IF NOT EXISTS index_players_display_name ON players(cached_display_name);
 
