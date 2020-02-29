@@ -36,12 +36,39 @@ const sql_select_player_lb_near =
 
 //
 
-let dbPromise = sqlite.open("./test.db", sqlite.OPEN_READONLY);
+function waitExists(filePath) {
+    return new Promise(function (resolve, reject) {
+
+        fs.access(filePath, fs.constants.R_OK, function (err) {
+            if (!err) {
+                clearTimeout(timer);
+                watcher.close();
+                resolve();
+            }
+        });
+
+        var dir = path.dirname(filePath);
+        var basename = path.basename(filePath);
+        var watcher = fs.watch(dir, function (eventType, filename) {
+            if (eventType === 'rename' && filename === basename) {
+                clearTimeout(timer);
+                watcher.close();
+                resolve();
+            }
+        });
+    });
+}
+
+//
+
+let dbPath = "./output/distance_leaderboard.db";
+
+let dbPromise = waitExists(dbPath).then(() => sqlite.open(dbPath, sqlite.OPEN_READONLY));
 
 //
 
 const app = express();
-const port = 3000;
+const port = 80;
 
 app.set('view engine', 'pug');
 app.use(express.static('/public'));

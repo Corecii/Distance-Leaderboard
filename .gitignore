@@ -1,8 +1,17 @@
 # Project-specific files
 test.db
+distance_leaderboard.db
+distance_leaderboard.db.*
+official_levels.json
+**/home/user/distance_leaderboard_evaluator
+libsteam_api.so
+remote.sh
+push.sh
+docker/browser/browser
 
 # Code editors
 .vs/
+.vscode/
 .idea/
 
 # Rust stuff

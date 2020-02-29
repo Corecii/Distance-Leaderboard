@@ -1,0 +1,17 @@
+[package]
+name = "distance_leaderboard_evaluator"
+version = "0.2.0"
+authors = ["Corecii <corecii@corecii.com>"]
+edition = "2018"
+
+[dependencies]
+steamworks = { git = "https://github.com/Seeker14491/steamworks-rs" } #{ path = "D:\\DevelopmentUnsynced\\steamworks-rs" }
+serde = "1.0.104"
+serde_derive = "1.0.104"
+serde_json = "1.0.48"
+rusqlite = { version = "0.21.0", features = ["bundled"]}
+reqwest = { version = "0.10.2", features = ["default-tls", "json"]}
+futures-timer = "3.0.2"
+tokio = { version="0.2.11", features = ["full"]}
+select = "0.4.3"
+clap = "2.33.0"
