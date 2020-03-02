@@ -8,8 +8,8 @@ block content
           th.db-content-level-index Index
           th.db-content-level-name Name
           th.db-content-entry-placement Placement
-          th.db-content-entry-time Time
-          th.db-content-entry-score Score
+          th.db-content-entry-score Time
+          th.db-content-entry-evaluation Evaluation
       tbody
         each entry in entries
           tr
@@ -17,8 +17,8 @@ block content
             th.db-content-level-name
               a(href=`/level/${entry.level_id}/${Math.max(1, entry.placement - 15)}`) #{entry.cached_display_name}
             th.db-content-level-placement #{entry.placement}
-            th.db-content-level-time #{entry.time}
             th.db-content-level-score #{entry.score}
+            th.db-content-level-evaluation #{entry.evaluation}
         else
           p No levels to display
   include paginator

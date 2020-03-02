@@ -89,16 +89,26 @@ pub async fn get_distance_workshop_page(page: u32) -> Result<Option<Vec<String>>
 		"https://steamcommunity.com/workshop/browse/?appid=233610&actualsort=mostrecent&browsesort=mostrecent&p={}",
 		page
 	);
-	let response = client.get(&request_url[..]).send().await?;
+	let mut attempts: u8 = 0;
+	let document = loop {
+		let response = client.get(&request_url[..]).send().await?;
 
-	let body_text = response.text().await?;
+		let body_text = response.text().await?;
 
-	let document = Document::from(&body_text[..]);
+		let document = Document::from(&body_text[..]);
 
-	if document.find(Attr("id", "no_items")).next() != None {
-		println!("no items!");
-		return Ok(None);
-	}
+		if document.find(Attr("id", "no_items")).next() == None {
+			break document;
+		}
+
+		attempts += 1;
+		println!("no items! attempt: {}", attempts);
+		if attempts == 5 {
+			println!("assuming page is actually empty...");
+			return Ok(None);
+		}
+		tokio::time::delay_for(Duration::from_secs(5)).await;
+	};
 
 	Ok(Some(document.find(Class("ugc"))
 		.map(|node| node.attr("data-publishedfileid"))
