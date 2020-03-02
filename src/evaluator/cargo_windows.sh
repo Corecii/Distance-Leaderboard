@@ -1,2 +1,2 @@
-BINDGEN_EXTRA_CLANG_ARGS='--include-directory "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17134.0\\ucrt" --include-directory "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Tools\\MSVC\\14.14.26428\\include"'
+export BINDGEN_EXTRA_CLANG_ARGS='--include-directory "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17134.0\\ucrt" --include-directory "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Tools\\MSVC\\14.14.26428\\include"'
 cargo.exe $@

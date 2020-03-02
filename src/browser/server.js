@@ -1,6 +1,9 @@
 const SQL = require('sql-template-strings')
 const express = require('express');
 const sqlite = require('sqlite');
+const delay = require('delay');
+const fs = require('fs-extra');
+const path = require('path');
 
 //
 
@@ -10,18 +13,18 @@ const sql_select_player_details = "SELECT * FROM players WHERE steam_id = ?1"
 
 //
 
-const sql_select_players = "SELECT (row_number() OVER(ORDER BY score_sum DESC)) AS placement, * FROM players"
+const sql_select_players = "SELECT (row_number() OVER(ORDER BY evaluation DESC)) AS placement, * FROM players"
 const sql_select_players_placement =
-    "WITH placement_players AS (SELECT (row_number() OVER(ORDER BY score_sum DESC)) AS placement, * FROM players)"
+    "WITH placement_players AS (SELECT (row_number() OVER(ORDER BY evaluation DESC)) AS placement, * FROM players)"
     + "SELECT * FROM placement_players WHERE steam_id = ?1"
 const sql_select_players_near =
-    "WITH placement_players AS (SELECT (row_number() OVER(ORDER BY score_sum DESC)) AS placement, * FROM players)"
+    "WITH placement_players AS (SELECT (row_number() OVER(ORDER BY evaluation DESC)) AS placement, * FROM players)"
     + " SELECT * FROM placement_players WHERE placement >= ?1 AND placement <= ?2"
 
-const sql_select_levels = "SELECT (score_sum/score_count)*min(score_count, 30) AS difficulty, * FROM levels ORDER BY difficulty DESC"
+const sql_select_levels = "SELECT evaluation AS difficulty, * FROM levels ORDER BY difficulty DESC"
 const sql_select_levels_near =
     "WITH"
-    + " levels_difficulty AS (SELECT (score_sum/score_count)*min(score_count, 30) AS difficulty,  * FROM levels ORDER BY difficulty DESC),"
+    + " levels_difficulty AS (SELECT evaluation AS difficulty,  * FROM levels ORDER BY difficulty DESC),"
     + " levels_difficulty_row AS (SELECT ROW_NUMBER() OVER(ORDER BY difficulty DESC) AS placement, * FROM levels_difficulty)"
     + "SELECT * FROM levels_difficulty_row WHERE placement >= ?1 AND placement <= ?2"
 
@@ -31,37 +34,30 @@ const sql_select_level_lb_near =
     "SELECT *, (SELECT cached_display_name FROM players WHERE steam_id = steam_leaderboard.steam_id) as cached_display_name FROM steam_leaderboard WHERE level_id = ?1 AND placement >= ?2 AND placement <= ?3 ORDER BY placement ASC"
 
 const sql_select_player_lb_near =
-    "WITH levels_player AS (SELECT ROW_NUMBER() OVER(ORDER BY score DESC) AS row_num, *, (SELECT cached_display_name FROM levels WHERE level_id = steam_leaderboard.level_id) AS cached_display_name FROM steam_leaderboard WHERE steam_id = ?1 ORDER BY score DESC)"
+    "WITH levels_player AS (SELECT ROW_NUMBER() OVER(ORDER BY evaluation DESC) AS row_num, *, (SELECT cached_display_name FROM levels WHERE level_id = steam_leaderboard.level_id) AS cached_display_name FROM steam_leaderboard WHERE steam_id = ?1 ORDER BY evaluation DESC)"
     + " SELECT * FROM levels_player WHERE row_num >= ?2 AND row_num <= ?3"
 
 //
 
-function waitExists(filePath) {
-    return new Promise(function (resolve, reject) {
+async function waitExists(filePath) {
+    while (!(await fs.pathExists(filePath))) {
+        await delay(1000);
+    }
+}
 
-        fs.access(filePath, fs.constants.R_OK, function (err) {
-            if (!err) {
-                clearTimeout(timer);
-                watcher.close();
-                resolve();
-            }
-        });
-
-        var dir = path.dirname(filePath);
-        var basename = path.basename(filePath);
-        var watcher = fs.watch(dir, function (eventType, filename) {
-            if (eventType === 'rename' && filename === basename) {
-                clearTimeout(timer);
-                watcher.close();
-                resolve();
-            }
-        });
-    });
+function zeroFill( number, width )
+{
+  width -= number.toString().length;
+  if ( width > 0 )
+  {
+    return new Array( width + (/\./.test( number ) ? 2 : 1) ).join( '0' ) + number;
+  }
+  return number + ""; // always return a string
 }
 
 //
 
-let dbPath = "./output/distance_leaderboard.db";
+let dbPath = "/root/output/distance_leaderboard.db";
 
 let dbPromise = waitExists(dbPath).then(() => sqlite.open(dbPath, sqlite.OPEN_READONLY));
 
@@ -71,7 +67,8 @@ const app = express();
 const port = 80;
 
 app.set('view engine', 'pug');
-app.use(express.static('/public'));
+app.set('views', path.join(__dirname, '/views'));
+app.use(express.static(path.join(__dirname, '/public')));
 
 async function respondPlayers(req, res) {
     try {
@@ -149,10 +146,10 @@ async function respondLevel(req, res) {
         }
         let entries = await db.all(sql_select_level_lb_near, [req.params.levelId, req.params.start, req.params.start + req.params.count]);
         for (let entry of entries) {
-            let mil = entry.time%1000;
-            let sec = Math.floor(entry.time/1000)%60;
-            let min = Math.floor(entry.time/60000);
-            entry.time = `${min}:${sec}.${mil}`;
+            let mil = entry.score%1000;
+            let sec = Math.floor(entry.score/1000)%60;
+            let min = Math.floor(entry.score/60000);
+            entry.score = `${min}:${zeroFill(sec, 2)}.${zeroFill(mil, 3)}`;
         }
         res.render('level', {
             title: `Level: ${details.cached_display_name}`,
@@ -193,10 +190,10 @@ async function respondPlayer(req, res) {
         }
         let entries = await db.all(sql_select_player_lb_near, [req.params.playerId, req.params.start, req.params.start + req.params.count]);
         for (let entry of entries) {
-            let mil = entry.time%1000;
-            let sec = Math.floor(entry.time/1000);
-            let min = Math.floor(entry.time/60000);
-            entry.time = `${min}:${sec}.${mil}`;
+            let mil = entry.score%1000;
+            let sec = Math.floor(entry.score/1000)%60;
+            let min = Math.floor(entry.score/60000);
+            entry.score = `${min}:${zeroFill(sec, 2)}.${zeroFill(mil, 3)}`;
         }
         res.render('player', {
             title: `Player: ${details.cached_display_name}`,
