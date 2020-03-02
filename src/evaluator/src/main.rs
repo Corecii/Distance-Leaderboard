@@ -72,8 +72,8 @@ impl App {
         "UPDATE levels
         SET
             evaluation_sum = (
-                SELECT SUM(evaluation_sum)
-                FROM (SELECT (SELECT evaluation_sum FROM players WHERE steam_id = steam_leaderboard.steam_id) AS evaluation_sum FROM steam_leaderboard WHERE level_id = levels.level_id)
+                SELECT SUM(evaluation)
+                FROM (SELECT (SELECT evaluation FROM players WHERE steam_id = steam_leaderboard.steam_id) AS evaluation FROM steam_leaderboard WHERE level_id = levels.level_id)
             )",
             params![],
         )?;
