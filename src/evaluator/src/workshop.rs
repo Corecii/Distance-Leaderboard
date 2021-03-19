@@ -107,7 +107,7 @@ pub async fn get_distance_workshop_page(page: u32) -> Result<Option<Vec<String>>
 			println!("assuming page is actually empty...");
 			return Ok(None);
 		}
-		tokio::time::delay_for(Duration::from_secs(5)).await;
+		tokio::time::sleep(Duration::from_secs(5)).await;
 	};
 
 	Ok(Some(document.find(Class("ugc"))
