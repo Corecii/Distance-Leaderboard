@@ -9,7 +9,7 @@ steamworks = { git = "https://github.com/Seeker14491/steamworks-rs" } #{ path = 
 serde = "1.0.104"
 serde_derive = "1.0.104"
 serde_json = "1.0.48"
-rusqlite = { version = "0.21.0", features = ["bundled"]}
+rusqlite = { version = "0.24.2", features = ["bundled"]}
 reqwest = { version = "0.10.2", features = ["default-tls", "json"]}
 futures-timer = "3.0.2"
 tokio = { version="0.2.11", features = ["full"]}
